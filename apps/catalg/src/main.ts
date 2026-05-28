@@ -6,15 +6,22 @@ import { CatalgModule } from './catalg.module';
 async function bootstrap() {
   process.title = 'catalog';
   const logger = new Logger('CatalogBootstrap');
-  const port = Number(process.env.CATALOG_TCP_PORT ?? 4011);
+  //const port = Number(process.env.CATALOG_TCP_PORT ?? 4011);
+
+  const rmqurl = process.env.RABBITMQ_URL ?? 'amqp://localhost:5672';
+
+  const queue = process.env.CATALOG_QUEUE ?? 'catalog_queue';
 
   const app = await NestFactory.createMicroservice<MicroserviceOptions>(
     CatalgModule,
     {
-      transport: Transport.TCP,
+      transport: Transport.RMQ,
       options: {
-        host: '0.0.0.0',
-        port,
+        urls: [rmqurl],
+        queue,
+        queueOptions: {
+          durable: true,
+        },
       },
     },
   );
@@ -22,7 +29,7 @@ async function bootstrap() {
   app.enableShutdownHooks();
   await app.listen();
 
-  logger.log(`catalog microservice (TCP) listening on port ${port}`);
+  logger.log(`catalog RMQ listening on queue ${queue} via ${rmqurl}`);
 }
 
 bootstrap();
