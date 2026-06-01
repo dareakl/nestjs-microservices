@@ -16,7 +16,7 @@ export class UsersService {
     const now = new Date();
     return this.userModel.findOneAndUpdate(
       {
-        clerkUserid: input.clerkUserId,
+        clerkUserId: input.clerkUserId,
       },
       {
         $set: {
