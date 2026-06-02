@@ -8,6 +8,6 @@ export type RpcErrorCode =
 
 export type RpcErrorPayload = {
   code: RpcErrorCode;
-  message: DOMStringList;
+  message: string;
   details?: any;
 };

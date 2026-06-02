@@ -1,4 +1,4 @@
-import { ArgumentHost, Catch } from '@nestjs/common';
+import { ArgumentsHost, Catch } from '@nestjs/common';
 import { BaseRpcExceptionFilter, RpcException } from '@nestjs/microservices';
 import { Response } from 'express';
 import { RpcErrorPayload } from './rpc.types';
@@ -6,7 +6,7 @@ import { RpcErrorPayload } from './rpc.types';
 //this filter run -> Inside the microservices process
 @Catch()
 export class RpcAllExceptionFilter extends BaseRpcExceptionFilter {
-  catch(exception: any, host: ArgumentHost) {
+  catch(exception: any, host: ArgumentsHost) {
     if (exception instanceof RpcException) {
       return super.catch(exception, host);
     }
