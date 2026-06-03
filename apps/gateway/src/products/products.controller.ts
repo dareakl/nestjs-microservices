@@ -44,7 +44,7 @@ export class ProductHttpController {
       description: body.description,
       price: Number(body.price),
       status: body.status,
-      imageUr: '',
+      imageUrl: '',
       createdByClerkUserId: user.clerkUserId,
     };
     // RMQ request and response pattern

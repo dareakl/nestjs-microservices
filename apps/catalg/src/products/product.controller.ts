@@ -8,6 +8,8 @@ export class ProductController {
   constructor(private readonly ProductService: ProductService) {}
   @MessagePattern('product.create')
   create(@Payload() payload: CreateProductDto) {
+    console.log('product.create received');
+    console.log(payload);
     return this.ProductService.createNewProduct(payload);
   }
   @MessagePattern('product.list')

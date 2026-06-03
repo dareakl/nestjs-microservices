@@ -29,7 +29,7 @@ export class UsersService {
         },
       },
       {
-        new: true,
+        returnDocument: 'after',
         upsert: true,
         setDefaultOnInsert: true,
       },
