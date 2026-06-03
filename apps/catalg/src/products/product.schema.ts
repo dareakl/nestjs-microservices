@@ -5,7 +5,7 @@ export type ProductDocument = HydratedDocument<Product>;
 
 export type ProductStatus = 'DRAFT' | 'ACTIVE';
 
-@Schema({ timestamps: tru })
+@Schema({ timestamps: true })
 export class Product {
   @Prop({ required: true })
   name: string;

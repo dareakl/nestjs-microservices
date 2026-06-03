@@ -1,0 +1,60 @@
+import { Body, Controller, Inject, Post } from '@nestjs/common';
+import { ClientProxy } from '@nestjs/microservices';
+import { CurrentUser } from '../auth/current-user.decorator';
+import type { UserContext } from '../auth/auth.types';
+import { mapRpcErrorToHttp } from '@app/rpc';
+import { firstValueFrom } from 'rxjs';
+
+type Product = {
+  _id: string;
+  name: string;
+  description: string;
+  price: number;
+  status: 'DRAFT' | 'ACTIVE';
+  imageUrl: string | undefined;
+  createdByClerkUserId: string | undefined;
+};
+
+@Controller()
+export class ProductHttpController {
+  constructor(
+    //gateway talks to catalog Via RMQ client
+    @Inject('CATALOG_CLIENT') private readonly catalogClient: ClientProxy,
+  ) {}
+
+  // media and image logic later placeholder
+  @Post('products')
+  async createProduct(
+    @CurrentUser() user: UserContext,
+    @Body()
+    body: {
+      name: string;
+      description: string;
+      price: number;
+      status?: string;
+      imageUrl?: string;
+    },
+  ) {
+    // do the basic validation - practice
+
+    let product: Product;
+
+    const payload = {
+      name: body.name,
+      description: body.description,
+      price: Number(body.price),
+      status: body.status,
+      imageUr: '',
+      createdByClerkUserId: user.clerkUserId,
+    };
+    // RMQ request and response pattern
+    try {
+      product = await firstValueFrom(
+        this.catalogClient.send('product.create', payload),
+      );
+    } catch (err) {
+      mapRpcErrorToHttp(err);
+    }
+    return product;
+  }
+}

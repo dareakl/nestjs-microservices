@@ -15,16 +15,16 @@ export class ProductService {
     name: string;
     description: string;
     price: number;
-    status?: string;
+    status?: 'DRAFT' | 'ACTIVE';
     imageUrl?: string;
     createdByClerkUserId: string;
   }) {
-    if (!input.name || input.description) {
+    if (!input.name || !input.description) {
       rpcBadRequest('name and description are required');
     }
     if (
       typeof input.price !== 'number' ||
-      Number.isNan(input.price) ||
+      Number.isNaN(input.price) ||
       input.price < 0
     ) {
       rpcBadRequest('Price must be a valid number >=0');
@@ -44,7 +44,7 @@ export class ProductService {
   }
 
   async listProducts() {
-    return (await this.productModel.find()).toSorted({ createdAt: -1 }).exec();
+    return this.productModel.find().sort({ createdAt: -1 }).exec();
   }
 
   async getProductById(input: { id: string }) {
