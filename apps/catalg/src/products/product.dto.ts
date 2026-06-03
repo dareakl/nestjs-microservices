@@ -1,7 +1,7 @@
 import { IsNumber, IsOptional, IsString } from 'class-validator';
 import type { ProductStatus } from './product.schema';
 
-export class CreateProduct {
+export class CreateProductDto {
   @IsString()
   name: string;
 
