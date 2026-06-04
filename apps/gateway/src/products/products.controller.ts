@@ -4,6 +4,7 @@ import { CurrentUser } from '../auth/current-user.decorator';
 import type { UserContext } from '../auth/auth.types';
 import { mapRpcErrorToHttp } from '@app/rpc';
 import { firstValueFrom } from 'rxjs';
+import { AdminOnly } from '../auth/admin.decorator';
 
 type Product = {
   _id: string;
@@ -24,6 +25,7 @@ export class ProductHttpController {
 
   // media and image logic later placeholder
   @Post('products')
+  @AdminOnly()
   async createProduct(
     @CurrentUser() user: UserContext,
     @Body()
