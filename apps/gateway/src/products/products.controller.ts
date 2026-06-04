@@ -1,4 +1,13 @@
-import { Body, Controller, Inject, Post, Get, Param } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Inject,
+  Post,
+  Get,
+  Param,
+  UseInterceptors,
+  UploadedFile,
+} from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { CurrentUser } from '../auth/current-user.decorator';
 import type { UserContext } from '../auth/auth.types';
@@ -6,6 +15,7 @@ import { mapRpcErrorToHttp } from '@app/rpc';
 import { firstValueFrom } from 'rxjs';
 import { AdminOnly } from '../auth/admin.decorator';
 import { Public } from '../auth/public.decorator';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 type Product = {
   _id: string;
@@ -22,13 +32,22 @@ export class ProductHttpController {
   constructor(
     //gateway talks to catalog Via RMQ client
     @Inject('CATALOG_CLIENT') private readonly catalogClient: ClientProxy,
+    @Inject('MEDIA_CLIENT') private readonly mediaClient: ClientProxy,
   ) {}
 
   // media and image logic later placeholder
   @Post('products')
   @AdminOnly()
+  @UseInterceptors(
+    FileInterceptor('image', {
+      limits: {
+        fileSize: 5 * 1024 * 1024,
+      },
+    }),
+  )
   async createProduct(
     @CurrentUser() user: UserContext,
+    @UploadedFile() file: Express.Multer.File | undefined,
     @Body()
     body: {
       name: string;
@@ -39,7 +58,26 @@ export class ProductHttpController {
     },
   ) {
     // do the basic validation - practice
+    let imageUrl: string | undefined = undefined;
+    let mediaId: string | undefined = undefined;
 
+    if (file) {
+      const base64 = file.buffer.toString('base64');
+      try {
+        const uploadResult = await firstValueFrom(
+          this.mediaClient.send('media.uploadProductImage', {
+            fileName: file.originalname,
+            mimeType: file.mimetype,
+            base64,
+            uploadByUserId: user.clerkUserId,
+          }),
+        );
+        imageUrl = uploadResult.url;
+        mediaId = uploadResult.mediaId;
+      } catch (err) {
+        mapRpcErrorToHttp(err);
+      }
+    }
     let product: Product;
 
     const payload = {
@@ -47,7 +85,7 @@ export class ProductHttpController {
       description: body.description,
       price: Number(body.price),
       status: body.status,
-      imageUrl: '',
+      imageUrl,
       createdByClerkUserId: user.clerkUserId,
     };
     // RMQ request and response pattern
@@ -57,6 +95,19 @@ export class ProductHttpController {
       );
     } catch (err) {
       mapRpcErrorToHttp(err);
+    }
+    if (mediaId) {
+      try {
+        await firstValueFrom(
+          this.mediaClient.send('media.attachToProduct', {
+            mediaId,
+            productId: String(product._id),
+            attachedByUserId: user.clerkUserId,
+          }),
+        );
+      } catch (err) {
+        mapRpcErrorToHttp(err);
+      }
     }
     return product;
   }
