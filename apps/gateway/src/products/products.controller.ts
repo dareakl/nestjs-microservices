@@ -1,10 +1,11 @@
-import { Body, Controller, Inject, Post } from '@nestjs/common';
+import { Body, Controller, Inject, Post, Get, Param } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { CurrentUser } from '../auth/current-user.decorator';
 import type { UserContext } from '../auth/auth.types';
 import { mapRpcErrorToHttp } from '@app/rpc';
 import { firstValueFrom } from 'rxjs';
 import { AdminOnly } from '../auth/admin.decorator';
+import { Public } from '../auth/public.decorator';
 
 type Product = {
   _id: string;
@@ -58,5 +59,25 @@ export class ProductHttpController {
       mapRpcErrorToHttp(err);
     }
     return product;
+  }
+  @Get('products')
+  @Public()
+  async listProducts() {
+    try {
+      return await firstValueFrom(this.catalogClient.send('product.list', {}));
+    } catch (err) {
+      mapRpcErrorToHttp(err);
+    }
+  }
+  @Get('products/:id')
+  @Public()
+  async getProduct(@Param('id') id: string) {
+    try {
+      return await firstValueFrom(
+        this.catalogClient.send('product.getById', { id }),
+      );
+    } catch (err) {
+      mapRpcErrorToHttp(err);
+    }
   }
 }
