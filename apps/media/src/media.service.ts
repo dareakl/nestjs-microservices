@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { initCloudinary } from './cloudinary/cloudinary.client';
 import { InjectModel } from '@nestjs/mongoose';
-import { MediaDocument } from './media/media.schema';
+import { Model } from 'mongoose';
+import { MediaDocument, Media } from './media/media.schema';
 import { rpcBadRequest, rpcNotFound } from '@app/rpc';
 import { UploadApiResponse } from 'cloudinary';
-import { resolve } from 'path';
 
 @Injectable()
 export class MediaService {
@@ -22,7 +22,7 @@ export class MediaService {
     if (!input.base64) {
       rpcBadRequest('Image base64 is needed');
     }
-    if (!input.mimeTyp.startsWith('image/')) {
+    if (!input.mimeType.startsWith('image/')) {
       rpcBadRequest('Only Images are allowed');
     }
     const buffer = Buffer.from(input.base64, 'base64');
@@ -58,12 +58,12 @@ export class MediaService {
     const mediaDoc = await this.mediaModel.create({
       url,
       publicId,
-      uploadByuserId: input.uploadByUserId,
+      uploadByUserId: input.uploadByUserId,
       productId: undefined,
     });
 
     return {
-      mediaId: stringify(mediaDoc._id),
+      mediaId: String(mediaDoc._id),
       url,
       publicId,
     };

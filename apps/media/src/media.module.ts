@@ -3,7 +3,7 @@ import { MediaController } from './media.controller';
 import { MediaService } from './media.service';
 import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
-import { MediaSchema } from './media/media.schema';
+import { Media, MediaSchema } from './media/media.schema';
 
 @Module({
   imports: [
@@ -11,7 +11,12 @@ import { MediaSchema } from './media/media.schema';
       isGlobal: true,
     }),
     MongooseModule.forRoot(process.env.MONGO_URI_MEDIA as string),
-    MongooseModule.forFeature[{ name: Media.name, schema: MediaSchema }],
+    MongooseModule.forFeature([
+      {
+        name: Media.name,
+        schema: MediaSchema,
+      },
+    ]),
   ],
   controllers: [MediaController],
   providers: [MediaService],
