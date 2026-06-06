@@ -15,6 +15,19 @@ import { ProductService } from './products/products.service';
     }),
     MongooseModule.forRoot(process.env.MONGO_URI_CATALOG as string),
     MongooseModule.forFeature([{ name: Product.name, schema: ProductSchema }]),
+
+    // catalog talks directly to search via RMQ client (not via gateway)
+    ClientsModule.register([
+      {
+        name: 'SEARCH_EVENTS_CLIENT',
+        transport: Transport.RMQ,
+        options: {
+          urls: [process.env.RABBITMQ_URL ?? 'amqp://localhost:5672'],
+          queue: process.env.SERACH_QUEUE ?? 'search_queue',
+          queueOptions: { durable: false },
+        },
+      },
+    ]),
   ],
   controllers: [CatalgController, ProductController],
   providers: [CatalgService, ProductService],
