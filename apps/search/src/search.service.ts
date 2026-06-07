@@ -19,7 +19,7 @@ export class SearchService {
     productId: string;
     name: string;
     description: string;
-    status: 'DRAFT' | 'ACIVE';
+    status: 'DRAFT' | 'ACTIVE';
     price: number;
   }) {
     const normalizedText = this.normalizeText({

@@ -6,5 +6,5 @@ export class SearchQueryDto {
   @IsOptional()
   @IsNumber()
   @Min(1)
-  limit?: Number;
+  limit?: number;
 }
