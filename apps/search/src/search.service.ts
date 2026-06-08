@@ -44,6 +44,7 @@ export class SearchService {
         setDefaultsOnInsert: true,
       },
     );
+    console.log('Search doc added as soon as product is created');
   }
 
   async query(input: { q: string; limit?: number }) {

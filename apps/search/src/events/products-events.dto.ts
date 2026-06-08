@@ -9,7 +9,7 @@ export class ProductCreatedDto {
   description: string;
   @IsIn(['DRAFT', 'ACTIVE'])
   status: 'DRAFT' | 'ACTIVE';
-  @IsNumber
+  @IsNumber()
   price: number;
   @IsOptional()
   @IsString()

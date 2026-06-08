@@ -7,6 +7,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { Product, ProductSchema } from './products/product.schema';
 import { ProductController } from './products/product.controller';
 import { ProductService } from './products/products.service';
+import { ProductEventsPubliser } from './events/product-events.publishers';
 
 @Module({
   imports: [
@@ -23,13 +24,13 @@ import { ProductService } from './products/products.service';
         transport: Transport.RMQ,
         options: {
           urls: [process.env.RABBITMQ_URL ?? 'amqp://localhost:5672'],
-          queue: process.env.SERACH_QUEUE ?? 'search_queue',
-          queueOptions: { durable: false },
+          queue: process.env.SEARCH_QUEUE ?? 'search_queue',
+          queueOptions: { durable: true },
         },
       },
     ]),
   ],
   controllers: [CatalgController, ProductController],
-  providers: [CatalgService, ProductService],
+  providers: [CatalgService, ProductService, ProductEventsPubliser],
 })
 export class CatalgModule {}

@@ -1,4 +1,4 @@
-import { Prop,Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 
 export type SearchProductDocument = HydratedDocument<SearchProduct>;
@@ -10,10 +10,10 @@ export class SearchProduct {
   name: string;
   @Prop({ required: true })
   normalizedText: string;
-  @Prop({ required: true, enum ['DRAFT', "ACTIVE"] })
+  @Prop({ required: true, enum: ['DRAFT', 'ACTIVE'] })
   status: 'DRAFT' | 'ACTIVE';
-    @Prop({ required: true })
+  @Prop({ required: true })
   price: number;
 }
 
-export const SearchProductSchema = SchemaFactory.createForClass(SearchProduct)
+export const SearchProductSchema = SchemaFactory.createForClass(SearchProduct);
